@@ -2,42 +2,52 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/GronoDigital/grono-youtube-seo.git'
+                // Jenkins automatically checks out code, so optionally:
+                sh 'pwd && ls'
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Build Project') {
-            steps {
-                sh 'npm run build'
-            }
-        }
-
-        stage('Deploy to EC2') {
+        stage('Backend - Install Dependencies') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no ubuntu@13.61.186.104 "sudo rm -rf /var/www/mywebsite/*"
-                scp -o StrictHostKeyChecking=no -r build/* ubuntu@13.61.186.104:/var/www/mywebsite/
-                ssh -o StrictHostKeyChecking=no ubuntu@13.61.186.104 "sudo systemctl restart nginx"
+                cd /var/lib/jenkins/workspace/gronowork
+
+                # Create or reuse venv
+                if [ ! -d "venv" ]; then
+                  python3 -m venv venv
+                fi
+
+                . venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Frontend - Build React') {
+            steps {
+                sh '''
+                cd /var/lib/jenkins/workspace/gronowork/frontend
+
+                npm install
+                npm run build
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                # Frontend deploy
+                rm -rf /var/www/grono_frontend/*
+                cp -r /var/lib/jenkins/workspace/gronowork/frontend/build/* /var/www/grono_frontend/
+
+                # Backend restart
+                sudo systemctl restart grono-backend
                 '''
             }
         }
     }
-
-    post {
-        success {
-            echo "Deployment Successful!"
-        }
-        failure {
-            echo "Deployment Failed!"
-        }
-    }
 }
-
