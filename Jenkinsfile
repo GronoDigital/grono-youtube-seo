@@ -8,19 +8,22 @@ pipeline {
                 sh '''
                 echo "📦 Checking out code..."
                 pwd
-                ls
+                ls -lah
                 '''
             }
         }
 
-        stage('Backend - Install Dependencies') {
+        stage('Backend Setup') {
             steps {
                 sh '''
-                echo "🔥 Setting up Python Virtual Env"
+                echo "🔥 Setting up virtual environment..."
 
                 cd /var/lib/jenkins/workspace/gronowork
 
-                # Create venv if not exists
+                # Fix permissions
+                sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace/gronowork
+
+                # Create virtual environment if missing
                 if [ ! -d "venv" ]; then
                     python3 -m venv venv
                 fi
@@ -28,13 +31,13 @@ pipeline {
                 # Activate venv
                 . venv/bin/activate
 
-                # Upgrade pip
+                # Update pip
                 pip install --upgrade pip
 
-                # Install required packages
+                # Install backend packages
                 pip install -r requirements.txt
 
-                echo "Dependencies Installed Successfully!"
+                echo "Dependencies installation complete!"
                 '''
             }
         }
@@ -42,11 +45,16 @@ pipeline {
         stage('Restart Backend Service') {
             steps {
                 sh '''
-                echo "🔁 Restarting Backend Service..."
+                echo "🔁 Restarting backend service..."
+
+                # Allow Jenkins to restart systemd service
+                echo "jenkins ALL=(ALL) NOPASSWD: /bin/systemctl restart grono-backend" | sudo tee /etc/sudoers.d/jenkins
 
                 sudo systemctl daemon-reload
                 sudo systemctl restart grono-backend
                 sudo systemctl status grono-backend --no-pager
+
+                echo "Backend restarted!"
                 '''
             }
         }
@@ -54,10 +62,11 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deployment Successful!"
+            echo "🎉 Deployment Success — Website Updated!"
         }
         failure {
             echo "❌ Deployment Failed!"
         }
     }
 }
+
