@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRONO - YouTube SEO Service Dashboard | Channel Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .brand-logo-dash {
+            font-size: 2em;
+            font-weight: 800;
+            color: #667eea;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .brand-logo-dash::before {
+            content: "⚡";
+            font-size: 0.9em;
+        }
+        
+        .header-content h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+        
+        .header-content .brand-subtitle {
+            color: #667eea;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .header-content p {
+            color: #666;
+            font-size: 1em;
+        }
+        
+        .user-info {
+            text-align: right;
+        }
+        
+        .user-info .username {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .user-info .user-stats {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .btn-logout {
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+        
+        .btn-admin {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-right: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn-admin:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-secondary.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .checkbox-cell {
+            text-align: center;
+            width: 80px;
+        }
+        
+        .checkbox-cell input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .channel-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .channel-url {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+        
+        .channel-url:hover {
+            text-decoration: underline;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        
+        .badge-emailed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-not-emailed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-country {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .pagination {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .pagination button:hover:not(:disabled) {
+            background: #f0f0f0;
+        }
+        
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination .page-info {
+            padding: 0 15px;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <div class="brand-section">
+                    <div class="brand-logo-dash">GRONO</div>
+                </div>
+                <h1>🎬 YouTube SEO Service Manager</h1>
+                <div class="brand-subtitle">Powered by GRONO</div>
+                <p>Manage your channel outreach and track email status</p>
+            </div>
+            <div class="user-info">
+                <div class="username" id="username">Loading...</div>
+                <div class="user-stats" id="user-stats">My channels emailed: 0</div>
+                <div>
+                    <button class="btn-secondary" onclick="showChangePasswordModal()" style="margin-right: 10px; padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; transition: all 0.3s;">🔑 Change Password</button>
+                    <a href="/users" class="btn-admin" id="admin-link" style="display: none;">👥 Manage Users</a>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="alert" class="alert"></div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Channels</h3>
+                <div class="number" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Emailed</h3>
+                <div class="number" id="stat-emailed">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Not Emailed</h3>
+                <div class="number" id="stat-not-emailed">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Replies Received</h3>
+                <div class="number" id="stat-replies" style="color: #10b981;">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Reply Rate</h3>
+                <div class="number" id="stat-reply-rate" style="color: #667eea;">0%</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search channels by title, description, or country...">
+            </div>
+            <div class="filter-buttons">
+                <button class="btn btn-secondary active" data-filter="all">All</button>
+                <button class="btn btn-secondary" data-filter="emailed">Emailed</button>
+                <button class="btn btn-secondary" data-filter="not-emailed">Not Emailed</button>
+            </div>
+            <button class="btn btn-success" id="fetch-btn" style="display: none;">🔄 Fetch New Channels (100 target)</button>
+            <button class="btn btn-primary" id="export-btn">📥 Export</button>
+            <button class="btn btn-secondary" id="advanced-filters-btn">🔍 Advanced Filters</button>
+            <a href="/analytics" class="btn btn-secondary">📊 Analytics</a>
+            <a href="/activity" class="btn btn-secondary">📋 Activity Log</a>
+        </div>
+        
+        <!-- Advanced Filters Panel -->
+        <div id="advanced-filters" class="card" style="display: none; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px;">Advanced Filters</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Country</label>
+                    <select id="filter-country" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="">All Countries</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="CA">Canada</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Keyword</label>
+                    <select id="filter-keyword" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="">All Keywords</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Min Subscribers</label>
+                    <input type="number" id="filter-min-subs" placeholder="e.g. 1000" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Max Subscribers</label>
+                    <input type="number" id="filter-max-subs" placeholder="e.g. 100000" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Min Priority Score</label>
+                    <input type="number" id="filter-min-score" step="0.1" placeholder="e.g. 50" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Reply Status</label>
+                    <select id="filter-reply" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="">All</option>
+                        <option value="true">Reply Received</option>
+                        <option value="false">No Reply</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Sort By</label>
+                    <select id="filter-sort" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <option value="fetched_at">Date Added</option>
+                        <option value="priority_score">Priority Score</option>
+                        <option value="subscribers">Subscribers</option>
+                        <option value="emailed_at">Emailed Date</option>
+                        <option value="replied_at">Reply Date</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-primary" onclick="applyAdvancedFilters()">Apply Filters</button>
+                <button class="btn btn-secondary" onclick="clearAdvancedFilters()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">Emailed</th>
+                        <th>Channel</th>
+                        <th>Country</th>
+                        <th>Subscribers</th>
+                        <th>Views</th>
+                        <th>Priority Score</th>
+                        <th>Keyword</th>
+                        <th>Emailed By</th>
+                        <th class="checkbox-cell">Reply Received</th>
+                    </tr>
+                </thead>
+                <tbody id="channels-table">
+                    <tr>
+                        <td colspan="9" class="loading">Loading channels</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+    
+    <script>
+        let currentPage = 1;
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let totalPages = 1;
+        let currentUser = null;
+        let advancedFilters = {};
+        
+        function getScoreColor(score) {
+            if (score >= 70) return '#10b981'; // Green
+            if (score >= 50) return '#f59e0b'; // Yellow
+            if (score >= 30) return '#ef4444'; // Red
+            return '#6b7280'; // Gray
+        }
+        
+        function applyAdvancedFilters() {
+            advancedFilters = {
+                country: document.getElementById('filter-country').value,
+                keyword: document.getElementById('filter-keyword').value,
+                min_subscribers: document.getElementById('filter-min-subs').value || null,
+                max_subscribers: document.getElementById('filter-max-subs').value || null,
+                min_score: document.getElementById('filter-min-score').value || null,
+                reply: document.getElementById('filter-reply').value || null,
+                sort_by: document.getElementById('filter-sort').value
+            };
+            loadChannels(1);
+        }
+        
+        function clearAdvancedFilters() {
+            document.getElementById('filter-country').value = '';
+            document.getElementById('filter-keyword').value = '';
+            document.getElementById('filter-min-subs').value = '';
+            document.getElementById('filter-max-subs').value = '';
+            document.getElementById('filter-min-score').value = '';
+            document.getElementById('filter-reply').value = '';
+            document.getElementById('filter-sort').value = 'fetched_at';
+            advancedFilters = {};
+            loadChannels(1);
+        }
+        
+        function exportChannels(format) {
+            const params = new URLSearchParams({
+                format: format,
+                search: currentSearch,
+                emailed: currentFilter === 'emailed' ? 'true' : currentFilter === 'not-emailed' ? 'false' : '',
+                ...advancedFilters
+            });
+            window.location.href = `/api/export?${params}`;
+        }
+        
+        // Load current user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    currentUser = user;
+                    document.getElementById('username').textContent = `👤 ${user.username}`;
+                    document.getElementById('user-stats').textContent = `My channels emailed: ${user.stats.channels_emailed}`;
+                    
+                    // Show admin features if admin
+                    if (user.role === 'admin') {
+                        document.getElementById('admin-link').style.display = 'inline-block';
+                        document.getElementById('fetch-btn').style.display = 'inline-block';
+                    }
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+                window.location.href = '/login';
+            }
+        }
+        
+        // Logout function
+        async function logout() {
+            try {
+                await fetch('/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        }
+        
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                document.getElementById('stat-total').textContent = data.total;
+                document.getElementById('stat-emailed').textContent = data.emailed;
+                document.getElementById('stat-not-emailed').textContent = data.not_emailed;
+                document.getElementById('stat-replies').textContent = data.replies_received || 0;
+                document.getElementById('stat-reply-rate').textContent = (data.reply_rate || 0) + '%';
+                
+                // Update user stats
+                if (currentUser) {
+                    const userStatsText = `My channels emailed: ${data.my_emailed || 0}${data.my_replies !== undefined ? ' | Replies: ' + data.my_replies : ''}`;
+                    document.getElementById('user-stats').textContent = userStatsText;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        // Load channels
+        async function loadChannels(page = 1) {
+            const tbody = document.getElementById('channels-table');
+            tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading channels</td></tr>';
+            
+            try {
+                const params = new URLSearchParams({
+                    page: page,
+                    per_page: 50,
+                    search: currentSearch
+                });
+                
+                if (currentFilter !== 'all') {
+                    params.append('emailed', currentFilter === 'emailed');
+                }
+                
+                // Add advanced filters
+                if (advancedFilters.country) params.append('country', advancedFilters.country);
+                if (advancedFilters.keyword) params.append('keyword', advancedFilters.keyword);
+                if (advancedFilters.min_subscribers) params.append('min_subscribers', advancedFilters.min_subscribers);
+                if (advancedFilters.max_subscribers) params.append('max_subscribers', advancedFilters.max_subscribers);
+                if (advancedFilters.min_score) params.append('min_score', advancedFilters.min_score);
+                if (advancedFilters.reply) params.append('reply', advancedFilters.reply);
+                if (advancedFilters.sort_by) {
+                    params.append('sort_by', advancedFilters.sort_by);
+                    params.append('sort_order', 'DESC');
+                }
+                
+                const response = await fetch(`/api/channels?${params}`);
+                const data = await response.json();
+                
+                currentPage = data.page;
+                totalPages = data.total_pages;
+                
+                if (data.channels.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #666;">No channels found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.channels.map(channel => `
+                    <tr>
+                        <td class="checkbox-cell">
+                            <input type="checkbox" 
+                                   ${channel.emailed ? 'checked' : ''} 
+                                   onchange="updateEmailedStatus(${channel.id}, this.checked)"
+                                   data-channel-id="${channel.id}">
+                        </td>
+                        <td>
+                            <div class="channel-title">${escapeHtml(channel.title || 'N/A')}</div>
+                            <a href="${channel.channel_url}" target="_blank" class="channel-url">View Channel →</a>
+                        </td>
+                        <td>
+                            <span class="badge badge-country">${channel.country || 'N/A'} (${channel.country_code || 'N/A'})</span>
+                        </td>
+                        <td>${formatNumber(channel.subscribers)}</td>
+                        <td>${formatNumber(channel.total_views)}</td>
+                        <td>
+                            <span class="badge" style="background: ${getScoreColor(channel.priority_score || 0)}; color: white;">
+                                ${(channel.priority_score || 0).toFixed(1)}
+                            </span>
+                        </td>
+                        <td>${escapeHtml(channel.search_keyword || 'N/A')}</td>
+                        <td>
+                            ${channel.emailed_by_username ? `<span class="badge badge-emailed">${escapeHtml(channel.emailed_by_username)}</span>` : '<span style="color: #999;">-</span>'}
+                        </td>
+                        <td class="checkbox-cell">
+                            ${channel.emailed ? `
+                                <input type="checkbox" 
+                                       ${channel.reply_received ? 'checked' : ''} 
+                                       onchange="updateReplyStatus(${channel.id}, this.checked)"
+                                       data-channel-id="${channel.id}"
+                                       title="${channel.reply_received && channel.replied_by_username ? 'Replied by ' + escapeHtml(channel.replied_by_username) : 'Mark as reply received'}">
+                                ${channel.reply_received ? '<span class="badge" style="background: #10b981; color: white; margin-left: 5px; font-size: 0.75em;">✓ Replied</span>' : ''}
+                            ` : '<span style="color: #999; font-size: 0.9em;">-</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+                
+                updatePagination();
+            } catch (error) {
+                console.error('Error loading channels:', error);
+                if (error.message.includes('401')) {
+                    window.location.href = '/login';
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #ef4444;">Error loading channels. Please refresh the page.</td></tr>';
+                }
+            }
+        }
+        
+        // Update emailed status
+        async function updateEmailedStatus(channelId, emailed) {
+            try {
+                const response = await fetch('/api/channels/update-emailed', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        channel_ids: [channelId],
+                        emailed: emailed
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadStats();
+                    loadChannels(currentPage);
+                    showAlert('Email status updated successfully', 'success');
+                }
+            } catch (error) {
+                console.error('Error updating emailed status:', error);
+                showAlert('Error updating email status', 'error');
+            }
+        }
+        
+        // Update reply status
+        async function updateReplyStatus(channelId, replyReceived) {
+            try {
+                const response = await fetch('/api/channels/update-reply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        channel_id: channelId,
+                        reply_received: replyReceived
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    loadStats();
+                    loadChannels(currentPage);
+                    showAlert(replyReceived ? 'Marked as reply received' : 'Reply status removed', 'success');
+                } else {
+                    showAlert(data.error || 'Error updating reply status', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating reply status:', error);
+                showAlert('Error updating reply status', 'error');
+            }
+        }
+        
+        // Fetch new channels (Admin only - targets 100 channels)
+        async function fetchNewChannels() {
+            const btn = document.getElementById('fetch-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Fetching 100 channels...';
+            
+            try {
+                const response = await fetch('/api/fetch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        max_results: 50,
+                        target_channels: 100
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    const targetMsg = data.target_reached ? ' (Target reached!)' : '';
+                    showAlert(`Successfully fetched ${data.new_channels} new channels! (Skipped ${data.skipped} duplicates)${targetMsg}`, 'success');
+                    loadStats();
+                    loadChannels(1);
+                } else {
+                    if (response.status === 403) {
+                        showAlert('❌ Only admins can fetch new channels. Please contact an administrator.', 'error');
+                    } else {
+                        showAlert(`Error: ${data.error}`, 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching channels:', error);
+                if (error.message.includes('403')) {
+                    showAlert('❌ Only admins can fetch new channels. Please contact an administrator.', 'error');
+                } else {
+                    showAlert('Error fetching channels. Please try again.', 'error');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄 Fetch New Channels (100 target)';
+            }
+        }
+        
+        // Update pagination
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            pagination.innerHTML = `
+                <button onclick="loadChannels(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+                <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+                <button onclick="loadChannels(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+            `;
+        }
+        
+        // Show alert
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert alert-${type} show`;
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatNumber(num) {
+            if (!num) return '0';
+            return parseInt(num).toLocaleString();
+        }
+        
+        // Event listeners
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            loadChannels(1);
+        });
+        
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                loadChannels(1);
+            });
+        });
+        
+        document.getElementById('fetch-btn').addEventListener('click', fetchNewChannels);
+        document.getElementById('advanced-filters-btn').addEventListener('click', () => {
+            const panel = document.getElementById('advanced-filters');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        });
+        document.getElementById('export-btn').addEventListener('click', () => {
+            if (confirm('Export current filtered channels to Excel?')) {
+                exportChannels('excel');
+            }
+        });
+        
+        // Load keywords for filter dropdown
+        async function loadKeywords() {
+            try {
+                const response = await fetch('/api/filters/options');
+                const data = await response.json();
+                if (data.success) {
+                    const select = document.getElementById('filter-keyword');
+                    data.keywords.forEach(kw => {
+                        const option = document.createElement('option');
+                        option.value = kw;
+                        option.textContent = kw;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading keywords:', error);
+            }
+        }
+        
+        // Initial load
+        loadUserInfo().then(() => {
+            loadStats();
+            loadChannels();
+            loadKeywords();
+        });
+        
+        // Auto-refresh stats every 30 seconds
+        setInterval(loadStats, 30000);
+        
+        // Password change functions
+        function showChangePasswordModal() {
+            document.getElementById('password-modal').style.display = 'flex';
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('password-error').style.display = 'none';
+        }
+        
+        function closePasswordModal() {
+            document.getElementById('password-modal').style.display = 'none';
+        }
+        
+        async function changePassword() {
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorDiv = document.getElementById('password-error');
+            
+            errorDiv.style.display = 'none';
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                errorDiv.textContent = 'All fields are required';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'New passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                errorDiv.textContent = 'Password must be at least 6 characters';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showAlert('Password changed successfully!', 'success');
+                    closePasswordModal();
+                } else {
+                    errorDiv.textContent = data.error || 'Failed to change password';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Error changing password. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+    </script>
+    
+    <!-- Password Change Modal -->
+    <div id="password-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+            <h2 style="margin-bottom: 20px; color: #333;">Change Password</h2>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Current Password</label>
+                <input type="password" id="current-password" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;" autocomplete="current-password">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">New Password</label>
+                <input type="password" id="new-password" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;" autocomplete="new-password">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500; color: #333;">Confirm New Password</label>
+                <input type="password" id="confirm-password" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;" autocomplete="new-password">
+            </div>
+            <div id="password-error" style="color: #ef4444; margin-bottom: 15px; display: none; padding: 10px; background: #fee2e2; border-radius: 6px; font-size: 0.9em;"></div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="changePassword()" class="btn btn-primary" style="flex: 1; padding: 12px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 500; transition: all 0.3s;">Change Password</button>
+                <button onclick="closePasswordModal()" class="btn btn-secondary" style="flex: 1; padding: 12px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: 500; transition: all 0.3s;">Cancel</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

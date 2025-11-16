@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRONO - Activity Log | Team Activity Tracking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .brand-logo-page {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: #667eea;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .brand-logo-page::before {
+            content: "⚡";
+            font-size: 0.9em;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+            margin-left: 15px;
+        }
+        
+        .header-brand {
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-item:hover {
+            background: #f9fafb;
+        }
+        
+        .activity-info {
+            flex: 1;
+        }
+        
+        .activity-user {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .activity-action {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .activity-time {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+        
+        .badge-fetch {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-email {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-export {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-notes {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-brand">
+                <div class="brand-logo-page">GRONO</div>
+                <h1>📋 Activity Log</h1>
+            </div>
+            <a href="/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+        
+        <div class="card">
+            <h2>Recent Activity</h2>
+            <div id="activity-list" class="loading">Loading activity...</div>
+        </div>
+    </div>
+    
+    <script>
+        function getActionBadge(action) {
+            if (action.includes('fetch')) return 'badge-fetch';
+            if (action.includes('email')) return 'badge-email';
+            if (action.includes('export')) return 'badge-export';
+            if (action.includes('notes')) return 'badge-notes';
+            return 'badge';
+        }
+        
+        function formatAction(action) {
+            return action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+        
+        function formatTime(timeString) {
+            const date = new Date(timeString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return date.toLocaleDateString();
+        }
+        
+        async function loadActivity() {
+            try {
+                const response = await fetch('/api/activity?limit=100');
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+                
+                const activities = result.activities;
+                const listDiv = document.getElementById('activity-list');
+                
+                if (activities.length === 0) {
+                    listDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No activity yet</div>';
+                    return;
+                }
+                
+                listDiv.innerHTML = activities.map(activity => `
+                    <div class="activity-item">
+                        <div class="activity-info">
+                            <div class="activity-user">
+                                <span class="badge ${getActionBadge(activity.action)}">${formatAction(activity.action)}</span>
+                                ${activity.username || 'System'}
+                            </div>
+                            <div class="activity-action">
+                                ${activity.details || 'No details'}
+                            </div>
+                        </div>
+                        <div class="activity-time">
+                            ${formatTime(activity.created_at)}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading activity:', error);
+                document.getElementById('activity-list').innerHTML = 
+                    '<div style="text-align: center; padding: 40px; color: #ef4444;">Error loading activity. Please try again.</div>';
+            }
+        }
+        
+        loadActivity();
+        setInterval(loadActivity, 30000); // Refresh every 30 seconds
+    </script>
+</body>
+</html>
+

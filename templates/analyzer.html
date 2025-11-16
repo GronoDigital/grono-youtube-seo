@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRONO - YouTube Channel Analyzer | Professional Channel Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            position: relative;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .brand-logo {
+            font-size: 1.8em;
+            font-weight: 800;
+            color: white;
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .brand-logo::before {
+            content: "⚡";
+            font-size: 1.2em;
+        }
+        
+        .login-btn-header {
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .login-btn-header:hover {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header .brand-tagline {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        
+        .analyzer-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-section {
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .results-section.show {
+            display: block;
+        }
+        
+        .channel-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .channel-thumbnail {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .channel-info h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .channel-info a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .score-card .score-label {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .score-card .score-value {
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .score-card .score-max {
+            font-size: 1.5em;
+            opacity: 0.8;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .metric-card .metric-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .metric-card .metric-value {
+            color: #333;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .breakdown-section {
+            margin-bottom: 30px;
+        }
+        
+        .breakdown-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .breakdown-item .label {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .breakdown-item .value {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .recommendations {
+            background: #f0f9ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .recommendations h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .recommendations ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recommendations li {
+            padding: 10px 0;
+            color: #555;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .recommendations li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .cta-section {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .cta-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .cta-section p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        .login-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-link:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 30px 20px;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        
+        .footer .brand-footer {
+            font-weight: 700;
+            font-size: 1.1em;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1.1em;
+            }
+            
+            .login-btn-header {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+            
+            .header-top {
+                margin-bottom: 20px;
+            }
+            
+            .brand-logo {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <a href="/" class="brand-logo">GRONO</a>
+                <a href="/login" class="login-btn-header">🔐 Team Login</a>
+            </div>
+            <h1>🎬 YouTube Channel Analyzer</h1>
+            <div class="brand-tagline">Powered by GRONO</div>
+            <p>Get instant insights into your YouTube channel's performance</p>
+        </div>
+        
+        <div class="analyzer-card">
+            <div class="input-section">
+                <div id="alert" class="alert alert-error"></div>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="channel-url" 
+                        placeholder="Enter YouTube channel URL (e.g., youtube.com/@channelname or youtube.com/channel/UCxxxxx)"
+                        autocomplete="off"
+                    >
+                    <button class="btn" id="analyze-btn" onclick="analyzeChannel()">Analyze Channel</button>
+                </div>
+                <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                    Supports: youtube.com/@username, youtube.com/channel/UCxxxxx, youtube.com/c/username
+                </p>
+            </div>
+            
+            <div id="results" class="results-section">
+                <div class="channel-header">
+                    <img id="channel-thumbnail" class="channel-thumbnail" src="" alt="Channel">
+                    <div class="channel-info">
+                        <h2 id="channel-title"></h2>
+                        <a id="channel-link" href="" target="_blank">View Channel →</a>
+                    </div>
+                </div>
+                
+                <div class="score-card">
+                    <div class="score-label">Priority Score</div>
+                    <div class="score-value" id="priority-score">0</div>
+                    <div class="score-max">out of 100</div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Subscribers</div>
+                        <div class="metric-value" id="subscribers">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Total Views</div>
+                        <div class="metric-value" id="total-views">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Videos</div>
+                        <div class="metric-value" id="video-count">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Engagement Rate</div>
+                        <div class="metric-value" id="engagement-rate">0</div>
+                    </div>
+                </div>
+                
+                <div class="breakdown-section">
+                    <h3>Score Breakdown</h3>
+                    <div class="breakdown-item">
+                        <span class="label">Subscriber Score</span>
+                        <span class="value" id="sub-score">0/40</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="label">Engagement Score</span>
+                        <span class="value" id="engagement-score">0/30</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="label">Activity Score</span>
+                        <span class="value" id="activity-score">0/30</span>
+                    </div>
+                </div>
+                
+                <div class="recommendations">
+                    <h3>💡 Recommendations</h3>
+                    <ul id="recommendations-list"></ul>
+                </div>
+                
+                <div class="cta-section">
+                    <h3>🚀 Ready to Grow Your Channel?</h3>
+                    <p>Get professional YouTube SEO services from <strong>GRONO</strong> to boost your channel's performance</p>
+                    <button class="btn" onclick="window.location.href='/login'">Login to Manage Leads</button>
+                    <br>
+                    <a href="/login" class="login-link">Already have an account? Login here</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="brand-footer">⚡ GRONO</div>
+            <p>Professional YouTube SEO Services</p>
+            <p>&copy; 2024 GRONO. All rights reserved.</p>
+        </div>
+    </div>
+    
+    <script>
+        function showAlert(message) {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.textContent = message;
+            alertDiv.classList.add('show');
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+            }, 5000);
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toString();
+        }
+        
+        function calculateScoreBreakdown(channel) {
+            const subscribers = channel["Subscribers"] || 0;
+            const views = channel["Total Views"] || 0;
+            const videos = channel["Video Count"] || 0;
+            
+            const subScore = Math.min(40, subscribers / 2500);
+            const engagementScore = subscribers > 0 ? Math.min(30, (views / subscribers) / 10) : 0;
+            const activityScore = Math.min(30, videos / 10);
+            
+            return {
+                subScore: Math.round(subScore * 10) / 10,
+                engagementScore: Math.round(engagementScore * 10) / 10,
+                activityScore: Math.round(activityScore * 10) / 10
+            };
+        }
+        
+        async function analyzeChannel() {
+            console.log('Analyze button clicked');
+            const channelUrl = document.getElementById('channel-url').value.trim();
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const resultsDiv = document.getElementById('results');
+            
+            console.log('Channel URL:', channelUrl);
+            
+            if (!channelUrl) {
+                showAlert('Please enter a YouTube channel URL');
+                return;
+            }
+            
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+            resultsDiv.classList.add('show');
+            resultsDiv.innerHTML = '<div class="loading">Analyzing channel</div>';
+            
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ channel_url: channelUrl })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.channel) {
+                    displayResults(data.channel);
+                } else {
+                    showAlert(data.error || 'Error analyzing channel');
+                    resultsDiv.classList.remove('show');
+                    resultsDiv.innerHTML = '';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Error connecting to server. Please try again.');
+                resultsDiv.classList.remove('show');
+                resultsDiv.innerHTML = '';
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Channel';
+            }
+        }
+        
+        function displayResults(channel) {
+            const resultsDiv = document.getElementById('results');
+            const breakdown = calculateScoreBreakdown(channel);
+            
+            // Channel header
+            document.getElementById('channel-thumbnail').src = channel["Thumbnail"] || '';
+            document.getElementById('channel-title').textContent = channel["Title"] || 'Unknown Channel';
+            document.getElementById('channel-link').href = channel["Channel URL"] || '#';
+            
+            // Priority score
+            document.getElementById('priority-score').textContent = (channel["Priority Score"] || 0).toFixed(1);
+            
+            // Metrics
+            document.getElementById('subscribers').textContent = formatNumber(channel["Subscribers"] || 0);
+            document.getElementById('total-views').textContent = formatNumber(channel["Total Views"] || 0);
+            document.getElementById('video-count').textContent = formatNumber(channel["Video Count"] || 0);
+            document.getElementById('engagement-rate').textContent = (channel["Engagement Rate"] || 0).toFixed(1);
+            
+            // Score breakdown
+            document.getElementById('sub-score').textContent = `${breakdown.subScore}/40`;
+            document.getElementById('engagement-score').textContent = `${breakdown.engagementScore}/30`;
+            document.getElementById('activity-score').textContent = `${breakdown.activityScore}/30`;
+            
+            // Recommendations
+            const recommendationsList = document.getElementById('recommendations-list');
+            recommendationsList.innerHTML = '';
+            if (channel["Recommendations"] && channel["Recommendations"].length > 0) {
+                channel["Recommendations"].forEach(rec => {
+                    const li = document.createElement('li');
+                    li.textContent = rec;
+                    recommendationsList.appendChild(li);
+                });
+            }
+            
+            resultsDiv.classList.add('show');
+        }
+        
+        // Allow Enter key to trigger analysis
+        document.getElementById('channel-url').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeChannel();
+            }
+        });
+    </script>
+</body>
+</html>
+
