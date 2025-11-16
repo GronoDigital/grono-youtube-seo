@@ -2,11 +2,13 @@ from googleapiclient.discovery import build
 from database import channel_exists, add_channel, get_fetched_channel_ids, log_activity, calculate_priority_score
 import time
 import re
+import os
 
 # ============================
 # 🔧 SETUP
 # ============================
-API_KEY = "AIzaSyAONIZtF-KpxJrTvXm3dtMWh2gRFllWEfs"
+# Get API key from environment variable (for production) or use default (for local dev)
+API_KEY = os.environ.get('YOUTUBE_API_KEY', 'AIzaSyAONIZtF-KpxJrTvXm3dtMWh2gRFllWEfs')
 YOUTUBE = build("youtube", "v3", developerKey=API_KEY)
 
 # 🌎 Countries to target (Top spending/high-value markets only)

@@ -553,7 +553,9 @@ def api_reset_password(user_id):
     return jsonify({'success': False, 'error': 'User not found'}), 404
 
 if __name__ == '__main__':
+    # For local development only
+    # In production (Render), gunicorn will be used via Procfile
     port = int(os.environ.get('PORT', 5001))
     debug = os.environ.get('FLASK_ENV') == 'development'
-    print(f"🚀 Starting YouTube SEO Service Manager on http://localhost:{port}")
+    print(f"🚀 Starting GRONO YouTube SEO Service Manager on http://localhost:{port}")
     app.run(debug=debug, host='0.0.0.0', port=port)
