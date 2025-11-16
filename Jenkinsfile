@@ -2,52 +2,62 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
-                // Jenkins automatically checks out code, so optionally:
-                sh 'pwd && ls'
+                sh '''
+                echo "📦 Checking out code..."
+                pwd
+                ls
+                '''
             }
         }
 
         stage('Backend - Install Dependencies') {
             steps {
                 sh '''
+                echo "🔥 Setting up Python Virtual Env"
+
                 cd /var/lib/jenkins/workspace/gronowork
 
-                # Create or reuse venv
+                # Create venv if not exists
                 if [ ! -d "venv" ]; then
-                  python3 -m venv venv
+                    python3 -m venv venv
                 fi
 
+                # Activate venv
                 . venv/bin/activate
+
+                # Upgrade pip
                 pip install --upgrade pip
+
+                # Install required packages
                 pip install -r requirements.txt
+
+                echo "Dependencies Installed Successfully!"
                 '''
             }
         }
 
-        stage('Frontend - Build React') {
+        stage('Restart Backend Service') {
             steps {
                 sh '''
-                cd /var/lib/jenkins/workspace/gronowork/frontend
+                echo "🔁 Restarting Backend Service..."
 
-                npm install
-                npm run build
-                '''
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                sh '''
-                # Frontend deploy
-                rm -rf /var/www/grono_frontend/*
-                cp -r /var/lib/jenkins/workspace/gronowork/frontend/build/* /var/www/grono_frontend/
-
-                # Backend restart
+                sudo systemctl daemon-reload
                 sudo systemctl restart grono-backend
+                sudo systemctl status grono-backend --no-pager
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Deployment Successful!"
+        }
+        failure {
+            echo "❌ Deployment Failed!"
         }
     }
 }
