@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: https://github.com/GronoDigital/grono-youtube-seo/new/main
+                git branch: 'main', url: 'https://github.com/GronoDigital/grono-youtube-seo.git'
             }
         }
 
@@ -23,9 +23,9 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sh '''
-                ssh -o StrictHostKeyChecking=no ubuntu@<EC2-Public-IP> "sudo rm -rf /var/www/mywebsite/*"
-                scp -o StrictHostKeyChecking=no -r build/* ubuntu@<EC2-Public-IP>:/var/www/mywebsite/
-                ssh -o StrictHostKeyChecking=no ubuntu@<EC2-Public-IP> "sudo systemctl restart nginx"
+                ssh -o StrictHostKeyChecking=no ubuntu@13.61.186.104 "sudo rm -rf /var/www/mywebsite/*"
+                scp -o StrictHostKeyChecking=no -r build/* ubuntu@13.61.186.104:/var/www/mywebsite/
+                ssh -o StrictHostKeyChecking=no ubuntu@13.61.186.104 "sudo systemctl restart nginx"
                 '''
             }
         }
@@ -40,3 +40,4 @@ pipeline {
         }
     }
 }
+
