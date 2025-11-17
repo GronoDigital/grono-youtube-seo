@@ -4,7 +4,7 @@ pipeline {
     environment {
         EC2_IP = "13.61.186.104"
         EC2_USER = "ubuntu"
-        SSH_KEY = "~/.ssh/ca2.pem"
+        SSH_KEY = "/var/lib/jenkins/.ssh/ca2.pem"
         BACKEND_DIR = "/var/www/backend"
     }
 
