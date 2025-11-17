@@ -7,8 +7,10 @@ import os
 # ============================
 # 🔧 SETUP
 # ============================
-# Get API key from environment variable (for production) or use default (for local dev)
-API_KEY = os.environ.get('YOUTUBE_API_KEY', 'AIzaSyAONIZtF-KpxJrTvXm3dtMWh2gRFllWEfs')
+# Get API key from environment variable (REQUIRED in production)
+API_KEY = os.environ.get('YOUTUBE_API_KEY')
+if not API_KEY:
+    raise ValueError("YOUTUBE_API_KEY environment variable is required. Please set it before running the application.")
 YOUTUBE = build("youtube", "v3", developerKey=API_KEY)
 
 # 🌎 Countries to target (Top spending/high-value markets only)

@@ -8,7 +8,10 @@ from datetime import datetime
 # 🔧 SETUP
 # ============================
 import os
-API_KEY = os.environ.get('YOUTUBE_API_KEY', "AIzaSyAONIZtF-KpxJrTvXm3dtMWh2gRFllWEfs")  # 🔹 Uses environment variable or default
+# Get API key from environment variable (REQUIRED)
+API_KEY = os.environ.get('YOUTUBE_API_KEY')
+if not API_KEY:
+    raise ValueError("YOUTUBE_API_KEY environment variable is required. Please set it before running the application.")
 YOUTUBE = build("youtube", "v3", developerKey=API_KEY)
 
 # Google Docs setup (optional - only if service account file exists)

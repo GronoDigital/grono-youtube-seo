@@ -449,6 +449,8 @@
                     Supports: youtube.com/@username, youtube.com/channel/UCxxxxx, youtube.com/c/username
                 </p>
             </div>
+
+            <div id="loading" class="loading" style="display: none;">Analyzing channel</div>
             
             <div id="results" class="results-section">
                 <div class="channel-header">
@@ -558,12 +560,10 @@
         }
         
         async function analyzeChannel() {
-            console.log('Analyze button clicked');
             const channelUrl = document.getElementById('channel-url').value.trim();
             const analyzeBtn = document.getElementById('analyze-btn');
             const resultsDiv = document.getElementById('results');
-            
-            console.log('Channel URL:', channelUrl);
+            const loadingDiv = document.getElementById('loading');
             
             if (!channelUrl) {
                 showAlert('Please enter a YouTube channel URL');
@@ -572,36 +572,71 @@
             
             analyzeBtn.disabled = true;
             analyzeBtn.textContent = 'Analyzing...';
-            resultsDiv.classList.add('show');
-            resultsDiv.innerHTML = '<div class="loading">Analyzing channel</div>';
+            loadingDiv.style.display = 'block';
+            resultsDiv.classList.remove('show');
             
-            try {
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ channel_url: channelUrl })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.channel) {
-                    displayResults(data.channel);
-                } else {
+            // Use current origin to ensure it works on both localhost and 127.0.0.1
+            const currentOrigin = window.location.origin;
+            const configuredBase = "{{ api_base_url or '' }}".trim();
+            const sanitizedBase = configuredBase ? configuredBase.replace(/\/$/, '') : '';
+            
+            // Build endpoints: try configured base first, then current origin, then relative
+            const endpoints = [];
+            if (sanitizedBase) {
+                endpoints.push(`${sanitizedBase}/api/analyze`);
+            }
+            endpoints.push(`${currentOrigin}/api/analyze`); // Use current origin (localhost or 127.0.0.1)
+            endpoints.push('/api/analyze'); // Fallback to relative URL
+            
+            let lastError = null;
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ channel_url: channelUrl })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        lastError = new Error(`HTTP ${response.status}: ${errorText}`);
+                        continue; // Try next endpoint
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.channel) {
+                        displayResults(data.channel);
+                        loadingDiv.style.display = 'none';
+                        analyzeBtn.disabled = false;
+                        analyzeBtn.textContent = 'Analyze Channel';
+                        return;
+                    }
+                    
                     showAlert(data.error || 'Error analyzing channel');
                     resultsDiv.classList.remove('show');
-                    resultsDiv.innerHTML = '';
+                    loadingDiv.style.display = 'none';
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = 'Analyze Channel';
+                    return;
+                } catch (error) {
+                    lastError = error;
+                    // Continue to next endpoint
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('Error connecting to server. Please try again.');
-                resultsDiv.classList.remove('show');
-                resultsDiv.innerHTML = '';
-            } finally {
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'Analyze Channel';
             }
+            
+            // Show error message
+            const errorMsg = lastError 
+                ? `Error connecting to server: ${lastError.message}. Please try again.`
+                : 'Error connecting to server. Please try again.';
+            showAlert(errorMsg);
+            resultsDiv.classList.remove('show');
+            loadingDiv.style.display = 'none';
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = 'Analyze Channel';
         }
         
         function displayResults(channel) {
