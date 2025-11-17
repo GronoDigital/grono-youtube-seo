@@ -7,16 +7,32 @@ from datetime import datetime
 # ============================
 # 🔧 SETUP
 # ============================
-API_KEY = "AIzaSyAONIZtF-KpxJrTvXm3dtMWh2gRFllWEfs"  # 🔹 Replace with your actual API key
+import os
+# Get API key from environment variable (REQUIRED)
+API_KEY = os.environ.get('YOUTUBE_API_KEY')
+if not API_KEY:
+    raise ValueError("YOUTUBE_API_KEY environment variable is required. Please set it before running the application.")
 YOUTUBE = build("youtube", "v3", developerKey=API_KEY)
 
-# Google Docs setup
+# Google Docs setup (optional - only if service account file exists)
 SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive']
-SERVICE_ACCOUNT_FILE = 'youtube-fetcher-478408-c185198da55b.json'
-credentials = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-DOCS_SERVICE = build('docs', 'v1', credentials=credentials)
-DRIVE_SERVICE = build('drive', 'v3', credentials=credentials)
+SERVICE_ACCOUNT_FILE = os.environ.get('GOOGLE_SERVICE_ACCOUNT_FILE', 'youtube-fetcher-478408-c185198da55b.json')
+DOCS_SERVICE = None
+DRIVE_SERVICE = None
+
+# Only initialize Google Docs if service account file exists
+if os.path.exists(SERVICE_ACCOUNT_FILE):
+    try:
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        DOCS_SERVICE = build('docs', 'v1', credentials=credentials)
+        DRIVE_SERVICE = build('drive', 'v3', credentials=credentials)
+    except Exception as e:
+        print(f"⚠️  Warning: Could not initialize Google Docs service: {e}")
+        print("   Google Docs integration will be disabled.")
+else:
+    print(f"⚠️  Warning: Service account file not found: {SERVICE_ACCOUNT_FILE}")
+    print("   Google Docs integration will be disabled.")
 
 # Google Doc ID (will be created if not exists)
 DOCUMENT_ID = None  # Will be set when creating/updating the doc
@@ -88,6 +104,10 @@ def create_or_get_google_doc(doc_title="YouTube Channel Data"):
     """Create a new Google Doc or get existing one"""
     global DOCUMENT_ID
     
+    if not DOCS_SERVICE or not DRIVE_SERVICE:
+        print("⚠️  Google Docs service not available. Skipping Google Docs integration.")
+        return None
+    
     # Try to find existing document
     try:
         results = DRIVE_SERVICE.files().list(
@@ -117,6 +137,10 @@ def create_or_get_google_doc(doc_title="YouTube Channel Data"):
 
 def write_to_google_doc(channel_data):
     """Write channel data to Google Doc"""
+    if not DOCS_SERVICE or not DRIVE_SERVICE:
+        print("⚠️  Google Docs service not available. Skipping Google Docs integration.")
+        return None
+    
     if not DOCUMENT_ID:
         print("❌ No document ID available")
         return

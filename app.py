@@ -13,7 +13,23 @@ from functools import wraps
 import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret-key-in-production-12345')
+
+# Security: SECRET_KEY is required in production
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    import secrets
+    # Generate a temporary key for development (warn user)
+    SECRET_KEY = secrets.token_hex(32)
+    print("⚠️  WARNING: SECRET_KEY not set. Generated temporary key for development.")
+    print("⚠️  Set SECRET_KEY environment variable in production!")
+
+app.config['SECRET_KEY'] = SECRET_KEY
+app.config['PUBLIC_API_BASE_URL'] = os.environ.get('PUBLIC_API_BASE_URL', '').strip()
+
+# Production settings
+if os.environ.get('FLASK_ENV') == 'production' or not os.environ.get('FLASK_DEBUG'):
+    app.config['DEBUG'] = False
+    app.config['TESTING'] = False
 
 # Initialize database on startup
 init_db()
@@ -123,7 +139,12 @@ def change_password():
 @app.route('/')
 def index():
     """Public landing page - Channel Analyzer"""
-    return render_template('analyzer.html')
+    response = app.make_response(render_template('analyzer.html', api_base_url=app.config.get('PUBLIC_API_BASE_URL', '')))
+    # Prevent caching to ensure latest JavaScript is loaded
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @app.route('/dashboard')
 def dashboard():
@@ -132,6 +153,15 @@ def dashboard():
         return redirect(url_for('login'))
     return render_template('dashboard.html')
 
+@app.route('/api/analyze', methods=['OPTIONS'])
+def analyze_channel_api_options():
+    """Handle CORS preflight requests"""
+    response = app.make_response('')
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
+
 @app.route('/api/analyze', methods=['POST'])
 def analyze_channel_api():
     """Public API endpoint to analyze a YouTube channel"""
@@ -139,30 +169,42 @@ def analyze_channel_api():
     channel_url = data.get('channel_url', '').strip()
     
     if not channel_url:
-        return jsonify({'success': False, 'error': 'Channel URL is required'}), 400
+        response = jsonify({'success': False, 'error': 'Channel URL is required'})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response, 400
     
     try:
         channel_data = analyze_channel(channel_url)
         if not channel_data:
             # Provide more helpful error message
-            return jsonify({
+            response = jsonify({
                 'success': False, 
                 'error': 'Channel not found or invalid URL. Please check that the URL is correct and try again.'
-            }), 404
+            })
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            return response, 404
         
-        return jsonify({
+        response = jsonify({
             'success': True,
             'channel': channel_data
         })
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response
     except Exception as e:
         error_msg = str(e)
         # Check for quota errors
         if 'quota' in error_msg.lower() or 'quotaExceeded' in error_msg:
-            return jsonify({
+            response = jsonify({
                 'success': False, 
                 'error': 'API quota exceeded. Please try again later.'
-            }), 503
-        return jsonify({'success': False, 'error': f'Error analyzing channel: {error_msg}'}), 500
+            })
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            return response, 503
+        response = jsonify({'success': False, 'error': f'Error analyzing channel: {error_msg}'})
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        return response, 500
 
 @app.route('/users')
 def users_page():
@@ -553,7 +595,9 @@ def api_reset_password(user_id):
     return jsonify({'success': False, 'error': 'User not found'}), 404
 
 if __name__ == '__main__':
+    # For local development only
+    # In production (Render), gunicorn will be used via Procfile
     port = int(os.environ.get('PORT', 5001))
     debug = os.environ.get('FLASK_ENV') == 'development'
-    print(f"🚀 Starting YouTube SEO Service Manager on http://localhost:{port}")
+    print(f"🚀 Starting GRONO YouTube SEO Service Manager on http://localhost:{port}")
     app.run(debug=debug, host='0.0.0.0', port=port)
