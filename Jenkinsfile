@@ -1,12 +1,19 @@
 pipeline {
     agent any
 
+    environment {
+        EC2_IP = "13.61.186.104"
+        EC2_USER = "ubuntu"
+        SSH_KEY = "~/.ssh/ca2.pem"
+        BACKEND_DIR = "/var/www/backend"
+    }
+
     stages {
 
         stage('Checkout') {
             steps {
                 sh '''
-                echo "📦 Checking out code..."
+                echo "📦 Checking out Repository..."
                 pwd
                 ls -lah
                 '''
@@ -16,45 +23,42 @@ pipeline {
         stage('Backend Setup') {
             steps {
                 sh '''
-                echo "🔥 Setting up virtual environment..."
+                echo "🔥 Setting up Python virtual environment..."
 
-                cd /var/lib/jenkins/workspace/gronowork
+                cd $WORKSPACE
 
-                # Fix permissions
-                sudo chown -R jenkins:jenkins /var/lib/jenkins/workspace/gronowork
-
-                # Create virtual environment if missing
+                # Create venv if not exists
                 if [ ! -d "venv" ]; then
+                    echo "⚙ Creating virtual environment..."
                     python3 -m venv venv
                 fi
 
-                # Activate venv
+                echo "⚙ Activating venv..."
                 . venv/bin/activate
 
-                # Update pip
+                echo "⬆ Upgrading pip..."
                 pip install --upgrade pip
 
-                # Install backend packages
+                echo "📦 Installing requirements..."
                 pip install -r requirements.txt
 
-                echo "Dependencies installation complete!"
+                echo "🏁 Backend setup complete!"
                 '''
             }
         }
 
-        stage('Restart Backend Service') {
+        stage('Deploy to EC2') {
             steps {
                 sh '''
-                echo "🔁 Restarting backend service..."
+                echo "🚀 Deploying backend to EC2..."
 
-                # Allow Jenkins to restart systemd service
-                echo "jenkins ALL=(ALL) NOPASSWD: /bin/systemctl restart grono-backend" | sudo tee /etc/sudoers.d/jenkins
+                # Copy project files to EC2 server
+                scp -o StrictHostKeyChecking=no -i $SSH_KEY -r $WORKSPACE/* $EC2_USER@$EC2_IP:$BACKEND_DIR/
 
-                sudo systemctl daemon-reload
-                sudo systemctl restart grono-backend
-                sudo systemctl status grono-backend --no-pager
+                echo "🔁 Restarting backend service on EC2..."
+                ssh -o StrictHostKeyChecking=no -i $SSH_KEY $EC2_USER@$EC2_IP "sudo systemctl restart backend"
 
-                echo "Backend restarted!"
+                echo "🎉 Deployment Completed Successfully!"
                 '''
             }
         }
@@ -62,11 +66,10 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Deployment Success — Website Updated!"
+            echo "✅ Pipeline executed successfully!"
         }
         failure {
             echo "❌ Deployment Failed!"
         }
     }
 }
-
