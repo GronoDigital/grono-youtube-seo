@@ -1,48 +1,13 @@
 pipeline {
     agent any
 
-    environment {
-        EC2_IP = "13.61.186.104"
-        EC2_USER = "ubuntu"
-        SSH_KEY = "/var/lib/jenkins/.ssh/ca2.pem"
-        BACKEND_DIR = "/var/www/backend"
-    }
-
     stages {
 
         stage('Checkout') {
             steps {
                 sh '''
                 echo "📦 Checking out Repository..."
-                pwd
                 ls -lah
-                '''
-            }
-        }
-
-        stage('Backend Setup') {
-            steps {
-                sh '''
-                echo "🔥 Setting up Python virtual environment..."
-
-                cd $WORKSPACE
-
-                # Create venv if not exists
-                if [ ! -d "venv" ]; then
-                    echo "⚙ Creating virtual environment..."
-                    python3 -m venv venv
-                fi
-
-                echo "⚙ Activating venv..."
-                . venv/bin/activate
-
-                echo "⬆ Upgrading pip..."
-                pip install --upgrade pip
-
-                echo "📦 Installing requirements..."
-                pip install -r requirements.txt
-
-                echo "🏁 Backend setup complete!"
                 '''
             }
         }
@@ -52,13 +17,36 @@ pipeline {
                 sh '''
                 echo "🚀 Deploying backend to EC2..."
 
-                # Copy project files to EC2 server
-                scp -o StrictHostKeyChecking=no -i $SSH_KEY -r $WORKSPACE/* $EC2_USER@$EC2_IP:$BACKEND_DIR/
+                # Copy ONLY required backend files
+                scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/ca2.pem \
+                app.py \
+                database.py \
+                main.py \
+                requirements.txt \
+                youtube_fetcher.py \
+                templates \
+                ubuntu@13.61.186.104:/var/www/backend/
 
-                echo "🔁 Restarting backend service on EC2..."
-                ssh -o StrictHostKeyChecking=no -i $SSH_KEY $EC2_USER@$EC2_IP "sudo systemctl restart backend"
+                echo "Files uploaded successfully!"
+                '''
+            }
+        }
 
-                echo "🎉 Deployment Completed Successfully!"
+        stage('Install on EC2') {
+            steps {
+                sh '''
+                echo "⚙ Running remote install..."
+
+                ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/ca2.pem ubuntu@13.61.186.104 "
+                    cd /var/www/backend &&
+                    python3 -m venv venv &&
+                    . venv/bin/activate &&
+                    pip install --upgrade pip &&
+                    pip install -r requirements.txt &&
+                    sudo systemctl restart grono-backend
+                "
+
+                echo "Backend deployed & restarted!"
                 '''
             }
         }
@@ -66,7 +54,7 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline executed successfully!"
+            echo "🎉 Deployment Success!"
         }
         failure {
             echo "❌ Deployment Failed!"
