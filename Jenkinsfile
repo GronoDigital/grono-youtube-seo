@@ -20,7 +20,7 @@ pipeline {
                 # Copy python files + db
                 scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/ca2.pem \
                 app.py database.py main.py requirements.txt youtube_fetcher.py youtube_channels.db \
-                ubuntu@13.61.186.104:/var/www/backend/
+                ubuntu@51.20.108.92:/var/www/backend/
 
                 # Copy templates folder separately
                 scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/ca2.pem -r templates \
