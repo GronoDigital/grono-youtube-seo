@@ -24,7 +24,7 @@ pipeline {
 
                 # Copy templates folder separately
                 scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/ca2.pem -r templates \
-                ubuntu@13.61.186.104:/var/www/backend/
+                ubuntu@51.20.108.92:/var/www/backend/
 
                 echo "Files uploaded successfully!"
                 '''
