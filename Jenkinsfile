@@ -57,6 +57,8 @@ pipeline {
                 sh '''
                 aws eks update-kubeconfig --name $CLUSTER --region ap-south-1
                 kubectl apply -f k8s/
+                kubectl set image deployment/grono-youtube-seo \
+                webapp=460783431753.dkr.ecr.ap-south-1.amazonaws.com/grono-youtube-seo:$BUILD_NUMBER
                 '''
             }
         }
