@@ -33,9 +33,8 @@ pipeline {
                 ECR_REGISTRY=$ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
                 IMAGE_TAG=$BUILD_NUMBER
 
-                docker build -t $ECR_REPO:$IMAGE_TAG .
+                docker build --no-cache -t $ECR_REPO:$IMAGE_TAG .
                 docker tag $ECR_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
-                docker tag $ECR_REPO:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPO:latest
                 '''
             }
         }
