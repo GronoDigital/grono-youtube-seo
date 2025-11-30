@@ -7,11 +7,12 @@ pipeline {
     ECR_REPO    = 'grono-youtube-seo'
     CLUSTER     = 'prod-eks-cluster'
     IMAGE_TAG   = "${BUILD_NUMBER}"
+    ECR_REGISTRY = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
   }
 
   triggers {
     githubPush()
-    pollSCM('H/5 * * * *')
+    pollSCM('H/10 * * * *')
   }
 
   stages {
@@ -36,7 +37,9 @@ pipeline {
         sh """
           docker build -t $ECR_REPO:$IMAGE_TAG .
           docker tag $ECR_REPO:$IMAGE_TAG \
-            $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+             IMAGE = "${ECR_REGISTRY}/repo:latest"
+
+#            $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
         """
       }
     }
