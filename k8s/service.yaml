@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grono-seo-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: grono-youtube-seo
+  ports:
+  - port: 80
+    targetPort: 5000

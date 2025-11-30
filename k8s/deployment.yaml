@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grono-youtube-seo
+  labels:
+    app: grono-youtube-seo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grono-youtube-seo
+  template:
+    metadata:
+      labels:
+        app: grono-youtube-seo
+    spec:
+      containers:
+      - name: webapp
+        image: 460783431753.dkr.ecr.ap-south-1.amazonaws.com/grono-youtube-seo:latest
+        ports:
+        - containerPort: 5000
