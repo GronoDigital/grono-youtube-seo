@@ -1,17 +1,15 @@
 pipeline {
     agent any
 
-    environment {
-        AWS_REGION    = 'ap-south-1'
-        ACCOUNT_ID    = '460783431753'
-        ECR_REPO      = 'grono-youtube-seo'
-        CLUSTER       = 'prod-eks-cluster'
-        ECR_REGISTRY  = '460783431753.dkr.ecr.ap-south-1.amazonaws.com'
+    triggers {
+        githubPush()
+        pollSCM('H/10 * * * *')
     }
 
-    triggers {
-        githubPush()              // Webhook trigger
-        pollSCM('H/10 * * * *')   // Backup poll every 10 mins
+    environment {
+        AWS_REGION = 'ap-south-1'
+        CLUSTER    = 'prod-eks-cluster'
+        ECR_REPO   = 'grono-youtube-seo'
     }
 
     stages {
@@ -19,7 +17,10 @@ pipeline {
         stage('ECR Login') {
             steps {
                 sh '''
-                aws ecr get-login-password --region $AWS_REGION \
+                ACCOUNT_ID=460783431753
+                ECR_REGISTRY=$ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
+
+                aws ecr get-login-password --region ap-south-1 \
                 | docker login --username AWS --password-stdin $ECR_REGISTRY
                 '''
             }
@@ -28,6 +29,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
+                ACCOUNT_ID=460783431753
+                ECR_REGISTRY=$ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
                 IMAGE_TAG=$BUILD_NUMBER
 
                 docker build -t $ECR_REPO:$IMAGE_TAG .
@@ -40,6 +43,8 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 sh '''
+                ACCOUNT_ID=460783431753
+                ECR_REGISTRY=$ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com
                 IMAGE_TAG=$BUILD_NUMBER
 
                 docker push $ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
@@ -51,19 +56,11 @@ pipeline {
         stage('Deploy to EKS') {
             steps {
                 sh '''
-                aws eks update-kubeconfig --name $CLUSTER --region $AWS_REGION
+                aws eks update-kubeconfig --name $CLUSTER --region ap-south-1
                 kubectl apply -f k8s/
                 '''
             }
         }
     }
-
-    post {
-        success {
-            echo "✅ CI/CD Pipeline completed successfully"
-        }
-        failure {
-            echo "❌ CI/CD Pipeline failed – check logs"
-        }
-    }
 }
+
