@@ -16,6 +16,16 @@ spec:
     spec:
       containers:
       - name: webapp
-        image: 460783431753.dkr.ecr.ap-south-1.amazonaws.com/grono-youtube-seo:latest
+        image: 460783431753.dkr.ecr.ap-south-1.amazonaws.com/grono-youtube-seo:BUILD_NUMBER
+        imagePullPolicy: Always
         ports:
-        - containerPort: 5000
+          - containerPort: 5000
+       env:
+            - name: YOUTUBE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: youtube-api-secret
+                  key: YOUTUBE_API_KEY
+
+            - name: FLASK_ENV
+              value: "production"
