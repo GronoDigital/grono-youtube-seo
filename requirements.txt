@@ -1,4 +1,5 @@
 flask
 pandas
 gunicorn
+openpyxl
 google-api-python-client
